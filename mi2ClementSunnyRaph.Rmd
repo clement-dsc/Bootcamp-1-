@@ -1,0 +1,114 @@
+---
+title: "Mission Impossible 2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Import via a csv
+
+Import the csv file called "mi2DataAll".
+
+```{r}
+library(readr)
+gdp <- read_csv("mi2DataAll.csv")
+gdp
+```
+
+# Delete the column
+
+Delete the column "X1".
+
+```{r}
+  # Columns
+ 
+gdp$X1 <- NULL
+gdp
+```
+
+# Remove missing values
+
+Remove all missing values from the dataframe "gdp".
+
+```{r}
+gdp2 <- tidyr::drop_na(gdp)
+```
+
+# Gather the data
+
+You need to gather (modify from wide to long) the dataframe "gdp2" to get three column: "country", "year", "gdp".
+
+```{r}
+library(tidyr)
+
+gdp3 <- tidyr::gather(gdp2, "year", "gdp", 2:59)
+gdp3
+```
+
+# Filter the data
+
+Filter the data to only keep the following countries: "united states", "canada", "japan", "belgique", "FRA".
+
+```{r}
+library(dplyr)
+gdp4 <- dplyr::filter(gdp3, country == "united states" | country == "canada" | country == "japan" | country == "belgique" | country == "FRA")
+gdp4
+```
+
+# Import via a gsheet 
+
+Import the data containing the longitute and latitude from this gsheet : <https://docs.google.com/spreadsheets/d/1VUxLOL2GH2ULrZ-lqQUa5IPKeSH-4dy_hTevZUyqbv4/edit#gid=0>
+
+```{r}
+library(gsheet)
+locations <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1VUxLOL2GH2ULrZ-lqQUa5IPKeSH-4dy_hTevZUyqbv4/edit#gid=0")
+locations
+```
+
+# Combining tables
+
+Join the data frame "locations" to the data frame "gdp4". Before combining the data frames, make sure that all countries and columns have the same names!
+
+```{r}
+library(base)
+gdp4$country <- gsub("FRA","France",gdp4$country)
+gdp4$country <- gsub("belgique","Belgium",gdp4$country)
+gdp4$country <- gsub("Japan","japan",gdp4$country)
+gdp4$country <- gsub("United States","united states",gdp4$country)
+gdp4$country <- gsub("canada","Canada",gdp4$country)
+gdp4
+
+library(dplyr)
+locations=rename(locations, country = "Pays")
+gdp5 <- left_join(gdp4, locations, by = "country")
+gdp5
+```
+
+# Delete a column
+
+Delete the column "Continent".
+
+```{r}
+gdp5$Continent <- NULL
+gdp5
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
